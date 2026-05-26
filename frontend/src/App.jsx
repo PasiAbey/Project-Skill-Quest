@@ -12,7 +12,7 @@ import StepQuizPage from './pages/StepQuizPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
-import { authService } from './services/api';
+import { authService, BACKEND_URL } from './services/api';
 
 // Protected Route component - checks authentication and quiz completion status
 const ProtectedRoute = ({ children, requireQuizComplete = true }) => {
@@ -64,7 +64,7 @@ function App() {
           // Use sendBeacon with Blob for reliable delivery even when page is closing
           // Blob with application/json ensures proper parsing on backend
           const blob = new Blob([data], { type: 'application/json' });
-          navigator.sendBeacon('http://localhost:5000/api/auth/log-exit', blob);
+          navigator.sendBeacon(`${BACKEND_URL}/api/auth/log-exit`, blob);
         }
       }
     };

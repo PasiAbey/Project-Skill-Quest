@@ -22,5 +22,7 @@ yarn-error.log*
 *.sln
 *.sw?
 
-
-
+# Data and temporary testing files
+.cosmos-db-data/
+seeded_chunks.json
+tmp/

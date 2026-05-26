@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { authService } from '../services/api';
+import { authService, BACKEND_URL } from '../services/api';
 import '../styles/navbar.css';
 
 /**
@@ -84,7 +84,7 @@ const Navbar = () => {
                     >
                         <div className="user-avatar">
                             <img
-                                src={user?.profilePic ? `http://localhost:5000${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"}
+                                src={user?.profilePic ? `${BACKEND_URL}${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"}
                                 alt="User avatar"
                             />
                         </div>

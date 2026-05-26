@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import CountUpAnimation from '../components/CountUpAnimation';
-import { authService, gamificationService, studyPlanService, rlService } from '../services/api';
+import { authService, gamificationService, studyPlanService, rlService, BACKEND_URL } from '../services/api';
 import '../styles/dashboard.css';
 
 /**
@@ -298,7 +298,7 @@ const DashboardPage = () => {
                 <div className="welcome-header">
                     <div className="welcome-avatar">
                         <img
-                            src={user?.profilePic ? `http://localhost:5000${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"}
+                            src={user?.profilePic ? `${BACKEND_URL}${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"}
                             alt="User avatar"
                         />
                     </div>

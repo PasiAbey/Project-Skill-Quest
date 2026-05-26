@@ -1,0 +1,11 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "description": "Shared library for SkillQuest Microservices",
+  "main": "index.js",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.1",
+    "nodemailer": "^8.0.1"
+  }
+}

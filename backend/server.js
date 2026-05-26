@@ -61,7 +61,7 @@ app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
 
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow frontend origin
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Allow frontend origin
     credentials: true                // Allow cookies/headers
 }));
 

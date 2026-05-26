@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { authService, gamificationService } from '../services/api';
+import { authService, gamificationService, BACKEND_URL } from '../services/api';
 import ProfileUploadModal from '../components/ProfileUploadModal';
 import EditProfileModal from '../components/EditProfileModal';
 import '../styles/profile.css';
@@ -113,7 +113,7 @@ const ProfilePage = () => {
                         <div className="avatar-section">
                             <div className="profile-avatar" onClick={() => setIsUploadModalOpen(true)} style={{ cursor: 'pointer', position: 'relative' }}>
                                 <img
-                                    src={user?.profilePic ? `http://localhost:5000${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"}
+                                    src={user?.profilePic ? `${BACKEND_URL}${user.profilePic}` : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"}
                                     alt="Profile avatar"
                                 />
                                 <div className="avatar-overlay">

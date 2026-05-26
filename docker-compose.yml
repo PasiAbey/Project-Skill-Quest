@@ -1,0 +1,211 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. DATABASE SERVICE (MySQL 8.0)
+  # ==========================================
+  mysql:
+    image: mysql:8.0
+    container_name: skillquest-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$DB_USER", "-p$DB_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ==========================================
+  # 2. AUTHENTICATION SERVICE (Port 5001)
+  # ==========================================
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: skillquest-auth-service
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - AI_SERVICE_URL=${AI_SERVICE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==========================================
+  # 3. QUIZ ASSESSMENT SERVICE (Port 5002)
+  # ==========================================
+  quiz-service:
+    build:
+      context: .
+      dockerfile: services/quiz-service/Dockerfile
+    container_name: skillquest-quiz-service
+    restart: unless-stopped
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - STUDY_PLAN_SERVICE_URL=${STUDY_PLAN_SERVICE_URL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==========================================
+  # 4. STUDY ROADMAP SERVICE (Port 5003)
+  # ==========================================
+  study-plan-service:
+    build:
+      context: .
+      dockerfile: services/study-plan-service/Dockerfile
+    container_name: skillquest-study-plan-service
+    restart: unless-stopped
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - ANALYTICS_SERVICE_URL=${ANALYTICS_SERVICE_URL}
+      - AI_SERVICE_URL=${AI_SERVICE_URL}
+      - RL_PERSONALIZE_API_URL=${RL_PERSONALIZE_API_URL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==========================================
+  # 5. ANALYTICS, GAMIFICATION & RL SERVICE (Port 5004)
+  # ==========================================
+  analytics-service:
+    build:
+      context: .
+      dockerfile: services/analytics-service/Dockerfile
+    container_name: skillquest-analytics-service
+    restart: unless-stopped
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==========================================
+  # 6. AI CONTENT ENGINE (Port 5005)
+  # ==========================================
+  ai-service:
+    build:
+      context: .
+      dockerfile: services/ai-service/Dockerfile
+    container_name: skillquest-ai-service
+    restart: unless-stopped
+    ports:
+      - "5005:5005"
+    environment:
+      - PORT=5005
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - CONTENT_API_URL=${CONTENT_API_URL}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ==========================================
+  # 9. COSMOS DB EMULATOR SERVICE (Port 8081)
+  # ==========================================
+  cosmos-db:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: skillquest-cosmos-db
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+      - "10250-10255:10250-10255"
+    environment:
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+      - AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1
+    volumes:
+      - ./.cosmos-db-data:/tmp/cosmos/appdata
+
+  # ==========================================
+  # 8. SKILLQUEST AI ENGINE (Python RAG API - Port 8001)
+  # ==========================================
+  ai-engine:
+    build:
+      context: ./services/SkillQuest AI Engine
+      dockerfile: Dockerfile
+    container_name: skillquest-ai-engine
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - COSMOS_ENDPOINT=${COSMOS_ENDPOINT}
+      - COSMOS_KEY=${COSMOS_KEY}
+      - GROQ_API_KEY_AGENT_3=${GROQ_API_KEY_AGENT_3}
+      - GROQ_API_KEY_AGENT_4=${GROQ_API_KEY_AGENT_4}
+    depends_on:
+      - cosmos-db
+
+  # ==========================================
+  # 7. FRONTEND GATEWAY SERVICE (Port 80)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_URL=
+        - VITE_API_URL=/api
+    container_name: skillquest-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - quiz-service
+      - study-plan-service
+      - analytics-service
+      - ai-service
+      - ai-engine
+
+volumes:
+  mysql-data:
+  cosmos-data:
