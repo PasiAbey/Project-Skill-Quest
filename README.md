@@ -27,109 +27,73 @@ SkillQuest/
     └── vite.config.js
 ```
 
-## ✨ Key Features
+## 🚀 Architecture & Microservices
 
-- **Adaptive Learning**: AI-driven study plans that evolve with your progress.
-- **Gamification**: Earn XP, badges, and maintain streaks to stay motivated.
-- **Secure Authentication**:
-  - Email Verification & Resend Capability.
-  - Forgot/Reset Password flows.
-  - JWT-based session management.
-- **Performance Analytics**: Visual data on your learning velocity and engagement.
+SkillQuest has evolved into a fully containerized microservices architecture:
+
+- **Frontend**: React + Vite (Port 5173)
+- **auth-service**: Handles users and login (Node.js, Port 5002)
+- **quiz-service**: Handles user profiling and scoring (Node.js, Port 5003)
+- **analytics-service**: Handles Reinforcement Learning tracking (Node.js, Port 5004)
+- **study-plan-service**: Handles path generation (Node.js, Port 5005)
+- **ai-service**: Node.js gateway for AI generation (Port 5006)
+- **SkillQuest AI Engine**: Python backend for RAG and LLM orchestration (Port 8001)
+- **MySQL**: Relational database for users and progress (Port 3306)
+- **Cosmos DB**: Vector database for RAG document storage (Port 8081)
+
+---
 
 ## 🚀 Prerequisites
 
 Before running the project, make sure you have the following installed:
 
-- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- **MySQL** database (or access to a MySQL server)
+- **Docker Desktop** (must be running) - [Download here](https://www.docker.com/products/docker-desktop)
+- **Node.js** (v18 or higher) - For frontend development
+- **Python 3.10+** - (Optional) Only needed if you are manually re-seeding the AI database.
 
-### 3. Database Setup
-
-1. Create a MySQL database named `skillquest`.
-2. Import the initial schema (if you have `schema.sql`).
-3. **Run Migrations**: To enable email verification and password reset features, run the following scripts in your database:
-   - `backend/migrations/add_verification_cols.sql`
-   - `backend/migrations/add_reset_password_cols.sql`
-   - `backend/migrations/create_rl_interactions_table.sql`
-   
-   *Alternatively, you can use the provided migration runner:*
-   ```bash
-   cd backend
-   node run_migration.js
-   ```
+---
 
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/PasiAbey/Project-Skill-Quest.git
 cd SkillQuest
 ```
 
-### 2. Backend Setup
+### 2. Configure Environment Variables
 
-1. Navigate to the backend folder:
-   ```bash
-   cd backend
-   ```
+Create a single `.env` file in the root directory. You can copy the template:
+```bash
+cp .env.example .env
+```
+Make sure to fill in your `GEMINI_API_KEY` and `GROQ_API_KEY` in the `.env` file to enable the AI Engine.
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### 3. Start the Backend (Docker)
 
-3. Create a `.env` file in the `backend` folder with the following variables:
-   ```env
-   DB_HOST=your_database_host
-   DB_USER=your_database_username
-   DB_PASSWORD=your_database_password
-   DB_NAME=skillquest
-   DB_PORT=3306
-   JWT_SECRET=your_secret_key_here
-   PORT=5000
-   
-   # External APIs
-   RL_API_URL=http://localhost:5001
-   CONTENT_API_URL=your_content_api_url
-   
-   # Email Configuration (Nodemailer)
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=465
-   SMTP_USER=your_email@gmail.com
-   SMTP_PASS=your_email_app_password
-   
-   # Frontend URL (for email links)
-   FRONTEND_URL=http://localhost:5173
-   ```
+All backend services, databases, and AI engines are orchestrated by Docker. Simply run:
+```bash
+docker compose up -d --build
+```
+*Note: The first time you run this, it will take a few minutes to download the database images and build the microservices.*
 
-4. Start the backend server:
-   ```bash
-   npm start
-   ```
-   
-   The server will run on `http://localhost:5000`
+### 4. (Optional) Seed the Cosmos DB Vector Database
+If you are running this for the very first time on a new machine, your Cosmos DB will be empty. To seed it with educational books:
+1. Ensure the containers are running.
+2. Install Python dependencies: `pip install -r "services/SkillQuest AI Engine/requirements.txt"`
+3. Run the seeder: `python seed_local.py` (This process can take 30+ minutes as it generates thousands of vector embeddings).
+*Note: If you already have the `.cosmos-db-data` folder, you do NOT need to run this.*
 
-### 3. Frontend Setup
+### 5. Start the Frontend
 
-1. Open a new terminal and navigate to the frontend folder:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   
-   The app will open at `http://localhost:5173`
+Open a new terminal and navigate to the frontend folder:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The app will open at `http://localhost:5173`
 
 ## 🛠️ Available Scripts
 
