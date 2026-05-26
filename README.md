@@ -1,35 +1,37 @@
 # SkillQuest 🎯
 
-A full-stack web application built with React (Vite) for the frontend and Node.js/Express for the backend, using MySQL as the database.
+A fully containerized microservices platform built with React (Vite) for the frontend, Node.js/Express for core backend services, and Python for an advanced LLM/RAG AI Engine.
+
+## ✨ Key Features
+
+- **Adaptive AI Learning**: An intelligent Python AI engine leveraging RAG (Retrieval-Augmented Generation) and Cosmos DB vector search to create personalized readings and quizzes.
+- **Smart Fallback Generation**: The AI engine uses Gemini 2.0 Flash as the primary generator, with a robust fallback to Groq (Llama 3.3) to bypass rate limits seamlessly.
+- **Gamification**: Earn XP, badges, and maintain streaks to stay motivated.
+- **Secure Authentication**: JWT-based session management.
+- **Performance Analytics**: Visual data on your learning velocity and engagement tracked via a dedicated reinforcement learning loop.
 
 ## 📁 Project Structure
 
 ```
 SkillQuest/
-├── backend/              # Node.js/Express server
-│   ├── config/           # Database configuration
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Authentication middleware
-│   ├── routes/           # API routes
-│   ├── server.js         # Entry point
-│   ├── package.json
-│   └── .env              # Environment variables (not in repo)
-│
-└── frontend/             # React + Vite app
-    ├── src/
-    │   ├── pages/        # Page components
-    │   ├── services/     # API service functions
-    │   ├── styles/       # CSS files
-    │   ├── assets/       # Static assets
-    │   ├── App.jsx       # Main app component
-    │   └── main.jsx      # Entry point
-    ├── package.json
-    └── vite.config.js
+├── docker-compose.yml       # Docker orchestration for all 10 containers
+├── .env.example             # Template for API keys
+├── .cosmos-db-data/         # Persistent local volume for vector DB
+├── frontend/                # React + Vite application
+│   └── src/
+└── services/                # Microservices directory
+    ├── ai-service/          # Node.js API gateway to Python Engine
+    ├── analytics-service/   # RL tracking and gamification
+    ├── auth-service/        # User authentication & registration
+    ├── quiz-service/        # Profile scoring & quiz validation
+    ├── study-plan-service/  # Curriculum path generation
+    ├── shared/              # Shared DB connection and auth logic
+    └── SkillQuest AI Engine/# Python FastAPI, RAG logic, and LLM Orchestrator
 ```
 
 ## 🚀 Architecture & Microservices
 
-SkillQuest has evolved into a fully containerized microservices architecture:
+The entire stack is orchestrated by Docker Compose:
 
 - **Frontend**: React + Vite (Port 5173)
 - **auth-service**: Handles users and login (Node.js, Port 5002)
@@ -83,7 +85,7 @@ If you are running this for the very first time on a new machine, your Cosmos DB
 1. Ensure the containers are running.
 2. Install Python dependencies: `pip install -r "services/SkillQuest AI Engine/requirements.txt"`
 3. Run the seeder: `python seed_local.py` (This process can take 30+ minutes as it generates thousands of vector embeddings).
-*Note: If you already have the `.cosmos-db-data` folder, you do NOT need to run this.*
+*Note: If you already have the `.cosmos-db-data` folder, you do NOT need to run this step! The data is persistent.*
 
 ### 5. Start the Frontend
 
@@ -95,116 +97,42 @@ npm run dev
 ```
 The app will open at `http://localhost:5173`
 
-## 🛠️ Available Scripts
-
-### Backend
-
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start the server |
-| `npm run dev` | Start in development mode |
-
-### Frontend
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-
 ## 🔧 Making Changes to the Project
 
-### For Contributors / Friends
-
 1. **Fork the repository** (optional, for external contributors)
-   - Click the "Fork" button on GitHub
-
-2. **Clone your fork or the main repo:**
-   ```bash
-   git clone <repository-url>
-   cd SkillQuest
-   ```
-
-3. **Create a new branch for your feature:**
+2. **Create a new branch for your feature:**
    ```bash
    git checkout -b feature/your-feature-name
    ```
-
-4. **Make your changes** in the appropriate folder:
+3. **Make your changes** in the appropriate folder:
    - Frontend code → `frontend/src/`
-   - Backend code → `backend/`
-
-5. **Test your changes locally:**
-   - Make sure both frontend and backend are running
-   - Test the feature you added/modified
-
-6. **Commit your changes:**
+   - Specific Backend Microservice → `services/<service-name>/`
+   - Python AI Logic → `services/SkillQuest AI Engine/`
+4. **Rebuild the specific Docker container** (if testing backend changes):
+   ```bash
+   docker compose up -d --build <service-name>
+   ```
+5. **Commit and Push your changes:**
    ```bash
    git add .
    git commit -m "Add: description of your changes"
-   ```
-
-7. **Push your branch:**
-   ```bash
    git push origin feature/your-feature-name
    ```
-
-8. **Create a Pull Request:**
-   - Go to the repository on GitHub
-   - Click "Compare & pull request"
-   - Describe your changes and submit
-
-### Recommended Commit Message Format
-
-- `Add:` for new features
-- `Fix:` for bug fixes
-- `Update:` for updates to existing features
-- `Remove:` for removed features
-- `Style:` for CSS/styling changes
-
-## 📂 Where to Add New Code
-
-| What you're adding | Where to add it |
-|-------------------|-----------------|
-| New page | `frontend/src/pages/` |
-| New API endpoint | `backend/routes/` and `backend/controllers/` |
-| New styles | `frontend/src/styles/` |
-| New API service | `frontend/src/services/` |
-| Static images | `frontend/src/assets/` |
-
-## 🔐 Environment Variables
-
-The `.env` file contains sensitive information and should **NEVER** be committed to the repository. Each contributor needs to create their own `.env` file with the required variables.
-
-## 📡 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Health check |
-| POST | `/api/auth/register` | User registration |
-| POST | `/api/auth/login` | User login |
-| GET | `/api/rl/recommend` | Get RL action recommendation |
-| POST | `/api/rl/engage` | Track frontend engagement with an RL action |
-| POST | `/api/rl/feedback` | Send reward feedback to Python RL model |
-| GET | `/api/rl/metrics` | Debug: Get user state vector metrics |
-| GET | `/api/rl/interactions`| Debug: View interaction history |
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Port already in use**
-   - Change the port in `.env` file
-   - Or kill the process using that port
+1. **Container fails to start (Port already in use)**
+   - Check if you have a local MySQL or another service running on your machine taking up port 3306 or 5000+.
+   - Stop the local service or change the port mapping in `docker-compose.yml`.
 
-2. **Database connection failed**
-   - Check your `.env` credentials
-   - Ensure MySQL server is running
+2. **AI Engine fails to generate content (500 Error)**
+   - Check your API keys in the `.env` file.
+   - Run `docker logs skillquest-ai-engine` to see if there is a rate limit or connection issue.
 
 3. **CORS errors**
-   - Make sure frontend is running on `http://localhost:5173`
-   - Backend CORS is configured for this origin
+   - Make sure your frontend is running on `http://localhost:5173`. The backend microservices strictly enforce CORS for this URL.
 
 ## 📝 License
 
@@ -213,5 +141,3 @@ ISC
 ---
 
 **Happy Coding! 🎉**
-
-If you have any questions, feel free to reach out or open an issue on GitHub.
