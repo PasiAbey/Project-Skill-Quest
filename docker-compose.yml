@@ -29,9 +29,7 @@ services:
   # 2. AUTHENTICATION SERVICE (Port 5001)
   # ==========================================
   auth-service:
-    build:
-      context: .
-      dockerfile: services/auth-service/Dockerfile
+    image: pasiabey/skillquest-auth-service:latest
     container_name: skillquest-auth-service
     restart: unless-stopped
     ports:
@@ -54,9 +52,7 @@ services:
   # 3. QUIZ ASSESSMENT SERVICE (Port 5002)
   # ==========================================
   quiz-service:
-    build:
-      context: .
-      dockerfile: services/quiz-service/Dockerfile
+    image: pasiabey/skillquest-quiz-service:latest
     container_name: skillquest-quiz-service
     restart: unless-stopped
     ports:
@@ -78,9 +74,7 @@ services:
   # 4. STUDY ROADMAP SERVICE (Port 5003)
   # ==========================================
   study-plan-service:
-    build:
-      context: .
-      dockerfile: services/study-plan-service/Dockerfile
+    image: pasiabey/skillquest-study-plan-service:latest
     container_name: skillquest-study-plan-service
     restart: unless-stopped
     ports:
@@ -104,9 +98,7 @@ services:
   # 5. ANALYTICS, GAMIFICATION & RL SERVICE (Port 5004)
   # ==========================================
   analytics-service:
-    build:
-      context: .
-      dockerfile: services/analytics-service/Dockerfile
+    image: pasiabey/skillquest-analytics-service:latest
     container_name: skillquest-analytics-service
     restart: unless-stopped
     ports:
@@ -127,9 +119,7 @@ services:
   # 6. AI CONTENT ENGINE (Port 5005)
   # ==========================================
   ai-service:
-    build:
-      context: .
-      dockerfile: services/ai-service/Dockerfile
+    image: pasiabey/skillquest-ai-service:latest
     container_name: skillquest-ai-service
     restart: unless-stopped
     ports:
@@ -168,9 +158,7 @@ services:
   # 8. SKILLQUEST AI ENGINE (Python RAG API - Port 8001)
   # ==========================================
   ai-engine:
-    build:
-      context: ./services/SkillQuest AI Engine
-      dockerfile: Dockerfile
+    image: pasiabey/skillquest-ai-engine:latest
     container_name: skillquest-ai-engine
     restart: unless-stopped
     ports:
@@ -188,12 +176,7 @@ services:
   # 7. FRONTEND GATEWAY SERVICE (Port 80)
   # ==========================================
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_BACKEND_URL=
-        - VITE_API_URL=/api
+    image: pasiabey/skillquest-frontend:latest
     container_name: skillquest-frontend
     restart: unless-stopped
     ports:
