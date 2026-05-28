@@ -162,7 +162,7 @@ services:
       - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
       - AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1
     volumes:
-      - ./.cosmos-db-data:/tmp/cosmos/appdata
+      - cosmos-data:/tmp/cosmos/appdata
 
   # ==========================================
   # 8. SKILLQUEST AI ENGINE (Python RAG API - Port 8001)
